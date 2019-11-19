@@ -23,6 +23,7 @@ app.start = function() {
   });
 };
 
+ 
 // Bootstrap the application, configure models, datasources and middleware.
 // Sub-apps like REST API are mounted via boot scripts.
 boot(app, __dirname, function(err) {
@@ -32,3 +33,24 @@ boot(app, __dirname, function(err) {
   if (require.main === module)
     app.start();
 });
+
+console.log(Object.keys(app.models));
+
+ 
+ app.models.user.afterRemote('create', (ctx, user, next) => {
+   console.log("New User is :", user);
+   app.models.Profile.create({
+     first_name: user.username,
+     created_at:new Date(),
+     userId: user.id
+   },(err, result) => {
+     if(!err && result){
+       console.log("created new Profile!", result);
+     }
+     else{
+        console.log("There is an error!", err);
+     }
+     next();
+   });
+   
+ });
